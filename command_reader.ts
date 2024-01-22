@@ -133,6 +133,42 @@ class CommandReader {
             command["tile_y"] = coordY;
             command["elements"] = json_elements;
         }
+        else if (command.type == "read_images_from_object") {
+            let object_id = command.object_id;
+            let object_type = command.object_type;
+
+            let loaded_object = objectManager.getObject(object_type, object_id);
+            let base_image_id = loaded_object.baseImageId;
+            let num_images = loaded_object.numImages;
+
+            let image_manager = ui.imageManager;
+            let json_images = [];
+            for (let i = 0; i < num_images; i++) {
+                let pixel_data = image_manager.getPixelData(base_image_id + i);
+                let json_pixel_data = {};
+                json_pixel_data["type"] = pixel_data.type;
+
+                if (pixel_data.type == "raw") {
+                    json_pixel_data["width"] = pixel_data.width;
+                    json_pixel_data["height"] = pixel_data.height;
+                    json_pixel_data["stride"] = pixel_data.stride;
+                    json_pixel_data["data"] = pixel_data.data;
+                }
+                else if (pixel_data.type == "rle") {
+                    json_pixel_data["width"] = pixel_data.width;
+                    json_pixel_data["height"] = pixel_data.height;
+                    json_pixel_data["data"] = pixel_data.data;
+                }
+                else {
+                    json_pixel_data["palette"] = pixel_data.palette;
+                    json_pixel_data["data"] = pixel_data.data;
+                }
+
+                json_images.push(json_pixel_data);
+            }
+
+            command["images"] = json_images;
+        }
         return JSON.stringify(command);
     }
 }
