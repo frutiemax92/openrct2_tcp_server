@@ -169,6 +169,15 @@ class CommandReader {
 
             command["images"] = json_images;
         }
+
+        else if (command.type == "read_path_from_object") {
+            let object_id = command.object_id;
+            let object_type = command.object_type;
+
+            let loaded_object = objectManager.getObject(object_type, object_id);
+            let installed_object = loaded_object.installedObject;
+            command["path"] = installed_object.path;
+        }
         return JSON.stringify(command);
     }
 }
