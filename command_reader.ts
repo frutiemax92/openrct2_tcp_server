@@ -126,18 +126,29 @@ class CommandReader {
                 let json_element = this.convertElementToJson(element);
                 json_elements.push(json_element);
             }
-            
-            console.log(`num elements=${tile.numElements}`)
 
             command["tile_x"] = coordX;
             command["tile_y"] = coordY;
             command["elements"] = json_elements;
         }
+        else if (command.type == "get_num_objects") {
+            let object_type = command.object_type;
+            let all_objects = objectManager.getAllObjects(object_type)
+            let num_objects = all_objects.length
+            command["num_objects"] = num_objects
+        }
         else if (command.type == "read_images_from_object") {
             let object_id = command.object_id;
             let object_type = command.object_type;
 
-            let loaded_object = objectManager.getObject(object_type, object_id);
+            // hack : we really care about the index capped by the maximum objects of that type...
+            let all_objects = objectManager.getAllObjects(object_type)
+            let indices = [];
+            for (let i = 0; i < all_objects.length; i++) {
+                indices.push(all_objects[i].index)
+            }
+
+            let loaded_object = objectManager.getObject(object_type, indices[object_id]);
             let base_image_id = loaded_object.baseImageId;
             let num_images = loaded_object.numImages;
 
@@ -170,13 +181,20 @@ class CommandReader {
             command["images"] = json_images;
         }
 
-        else if (command.type == "read_path_from_object") {
+        else if (command.type == "read_identifier_from_object") {
             let object_id = command.object_id;
             let object_type = command.object_type;
 
-            let loaded_object = objectManager.getObject(object_type, object_id);
+            // hack : we really care about the index capped by the maximum objects of that type...
+            let all_objects = objectManager.getAllObjects(object_type)
+            let indices = [];
+            for (let i = 0; i < all_objects.length; i++) {
+                indices.push(all_objects[i].index)
+            }
+
+            let loaded_object = objectManager.getObject(object_type, indices[object_id]);
             let installed_object = loaded_object.installedObject;
-            command["path"] = installed_object.path;
+            command["path"] = installed_object.identifier;
         }
         return JSON.stringify(command);
     }

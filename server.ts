@@ -22,10 +22,10 @@ class Server {
         let commandReader = this.commandReader;
 
         socket.on("data", (data) => {
-            console.log('on data');
             // send back data to the client
             let commandReader = new CommandReader();
-            let dataOut = commandReader.parseJson(data);
+            let dataOut = commandReader.parseJson(data.slice(0, data.length - 3));
+            dataOut = dataOut.concat("END")
             socket.write(dataOut);
         });
 
@@ -36,14 +36,6 @@ class Server {
         socket.on("close", (hadError) => {
             console.log('onClose');
         });
-    }
-
-    onData(data : string) {
-        //console.log(`data = ${data}`);
-        console.log('on data');
-        // send back data to the client
-        let dataOut = this.commandReader.parseJson(data);
-        this.socket.write(dataOut);
     }
 
     onError(hadError : Boolean) {

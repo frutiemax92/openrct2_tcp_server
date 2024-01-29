@@ -1,12 +1,9 @@
 /// <reference path="openrct2.d.ts" />
 /// <reference path="server.ts" />
 
-let message : string = "Hello World";
-console.log(message);
-
 let server = new Server();
 var main = () => {
-    server.listen(7860);
+    server.listen(7861);
 }
 
 let settings = {} as PluginMetadata;
