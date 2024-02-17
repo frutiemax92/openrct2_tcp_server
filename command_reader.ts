@@ -144,6 +144,7 @@ class CommandReader {
             // hack : we really care about the index capped by the maximum objects of that type...
             let all_objects = objectManager.getAllObjects(object_type)
             let indices = [];
+
             for (let i = 0; i < all_objects.length; i++) {
                 indices.push(all_objects[i].index)
             }
@@ -180,7 +181,34 @@ class CommandReader {
 
             command["images"] = json_images;
         }
+        else if (command.type == "read_flags_from_object") {
+            let object_id = command.object_id;
+            let object_type = command.object_type;
 
+            // hack : we really care about the index capped by the maximum objects of that type...
+            let all_objects = objectManager.getAllObjects(object_type)
+            let indices = [];
+            for (let i = 0; i < all_objects.length; i++) {
+                indices.push(all_objects[i].index)
+            }
+
+            let loaded_object = objectManager.getObject(object_type, indices[object_id]);
+            let flags = loaded_object.flags;
+
+            command["flags"] = flags;
+        }
+
+        else if (command.type == "read_identifiers_from_objects") {
+            let object_type = command.object_type;
+
+            let all_objects = objectManager.getAllObjects(object_type)
+            let ids = [];
+
+            for (let i = 0; i < all_objects.length; i++) {
+                ids.push(all_objects[i].index)
+            }
+            command["ids"] = ids;
+        }
         else if (command.type == "read_identifier_from_object") {
             let object_id = command.object_id;
             let object_type = command.object_type;
@@ -195,6 +223,9 @@ class CommandReader {
             let loaded_object = objectManager.getObject(object_type, indices[object_id]);
             let installed_object = loaded_object.installedObject;
             command["path"] = installed_object.identifier;
+        }
+        else {
+            console.log("wrong command!");
         }
         return JSON.stringify(command);
     }
