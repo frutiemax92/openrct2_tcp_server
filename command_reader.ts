@@ -137,6 +137,36 @@ class CommandReader {
             let num_objects = all_objects.length
             command["num_objects"] = num_objects
         }
+        else if (command.type == "read_offsets_from_object") {
+            let object_id = command.object_id;
+            let object_type = command.object_type;
+
+            // hack : we really care about the index capped by the maximum objects of that type...
+            let all_objects = objectManager.getAllObjects(object_type)
+            let indices = [];
+
+            for (let i = 0; i < all_objects.length; i++) {
+                indices.push(all_objects[i].index)
+            }
+
+            let loaded_object = objectManager.getObject(object_type, indices[object_id]);
+            let base_image_id = loaded_object.baseImageId;
+            let num_images = loaded_object.numImages;
+
+            let image_manager = ui.imageManager;
+
+            let offsets = [];
+            for (let i = 0; i < num_images; i++) {
+                let image_info = image_manager.getImageInfo(base_image_id + i);
+                
+                let json_offset = {};
+                let offset = image_info.offset;
+                json_offset["x"] = offset.x;
+                json_offset["y"] = offset.y;
+                offsets.push(json_offset);
+            }
+            command["offsets"] = offsets;
+        }
         else if (command.type == "read_images_from_object") {
             let object_id = command.object_id;
             let object_type = command.object_type;
